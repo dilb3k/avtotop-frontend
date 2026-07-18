@@ -11,9 +11,12 @@ import Select from '@/components/ui/Select';
 import PriceInput from '@/components/ui/PriceInput';
 import MileageInput from '@/components/ui/MileageInput';
 import CitySelect from '@/components/ui/CitySelect';
-import toast from 'react-hot-toast';
-import { IoCarSport } from 'react-icons/io5';
 import ImageUploader from '@/components/ui/ImageUploader';
+import toast from 'react-hot-toast';
+import {
+  IoCarSport, IoArrowForward, IoArrowBack,
+  IoCheckmark, IoColorFill, IoSpeedometer
+} from 'react-icons/io5';
 
 const FUEL_TYPES = [
   { value: 'benzin', label: 'Benzin' },
@@ -24,8 +27,8 @@ const FUEL_TYPES = [
 ];
 
 const TRANSMISSIONS = [
-  { value: 'avtomat', label: 'Avtomat' },
-  { value: 'mexanik', label: 'Mexanik' },
+  { value: 'avtomat', label: "Avtomatik" },
+  { value: 'mexanik', label: "Mexanik" },
 ];
 
 const BODY_TYPES = [
@@ -39,10 +42,16 @@ const BODY_TYPES = [
   { value: 'kabriolet', label: 'Kabriolet' },
 ];
 
+const COLORS = [
+  'Oq', 'Qora', 'Kumush', 'Qizil', 'Ko\'k', 'Yashil',
+  'Sariq', 'Jigarrang', 'To\'q ko\'k', 'Kulrang', 'Bej', 'Binafsha'
+];
+
 export default function CreateCarPage() {
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(1);
   const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState({
     title: '',
@@ -84,31 +93,14 @@ export default function CreateCarPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleRemoveImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validation
-    if (!formData.title || !formData.brand || !formData.model || !formData.price || !formData.city) {
-      toast.error("Barcha majburiy maydonlarni to'ldiring");
+  const handleSubmit = async () => {
+    if (!formData.brand || !formData.model || !formData.price || !formData.city) {
+      toast.error("Marka, model, narx va shahar majburiy");
       return;
     }
 
     if (formData.price <= 0) {
       toast.error("Narx 0 dan katta bo'lishi kerak");
-      return;
-    }
-
-    if (Number(formData.year) < 1950 || Number(formData.year) > new Date().getFullYear() + 1) {
-      toast.error("Noto'g'ri yil");
-      return;
-    }
-
-    if (!formData.city) {
-      toast.error("Shaharni tanlang");
       return;
     }
 
@@ -142,189 +134,307 @@ export default function CreateCarPage() {
 
   if (authLoading) {
     return (
-      <div className="page-container flex justify-center py-20">
+      <div className="flex justify-center py-20">
         <div className="spinner" />
       </div>
     );
   }
 
   return (
-    <div className="page-container max-w-3xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Yangi e'lon qo'shish</h1>
-        <p className="text-gray-600">Mashinangiz haqida ma'lumot kiriting</p>
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      {/* Step indicator */}
+      <div className="border-b border-gray-100 px-6 py-4">
+        <div className="flex items-center justify-between">
+          {[1, 2, 3].map((s) => (
+            <div key={s} className="flex items-center gap-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                step >= s
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-gray-100 text-gray-400'
+              }`}>
+                {step > s ? <IoCheckmark size={16} /> : s}
+              </div>
+              <span className={`text-sm font-medium hidden sm:block ${
+                step >= s ? 'text-gray-900' : 'text-gray-400'
+              }`}>
+                {s === 1 ? "Ma'lumotlar" : s === 2 ? "Texnikasi" : "Rasmlar"}
+              </span>
+              {s < 3 && <div className={`w-12 h-0.5 mx-2 ${step > s ? 'bg-primary-600' : 'bg-gray-200'}`} />}
+            </div>
+          ))}
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Info */}
-        <div className="card p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Asosiy ma'lumotlar</h2>
-          <div className="space-y-4">
-            <Input
-              label="Sarlavha *"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="Masalan: Toyota Camry 2020"
-              required
-            />
+      {/* Step 1: Basic info */}
+      {step === 1 && (
+        <div className="p-6 space-y-5">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">Asosiy ma'lumotlar</h2>
+            <p className="text-sm text-gray-500">Mashinangiz haqida batafsil ma'lumot kiriting</p>
+          </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Marka *"
+          {/* Brand + Model */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Marka *</label>
+              <input
+                type="text"
                 name="brand"
                 value={formData.brand}
                 onChange={handleChange}
                 placeholder="Toyota"
-                required
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white transition-all placeholder:text-gray-400"
               />
-              <Input
-                label="Model *"
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Model *</label>
+              <input
+                type="text"
                 name="model"
                 value={formData.model}
                 onChange={handleChange}
                 placeholder="Camry"
-                required
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white transition-all placeholder:text-gray-400"
               />
             </div>
+          </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Yil *"
-                name="year"
+          {/* Auto-generated title preview */}
+          {(formData.brand || formData.model) && (
+            <div className="bg-primary-50 rounded-xl p-3 flex items-center gap-2">
+              <IoCarSport className="text-primary-500" size={18} />
+              <span className="text-sm text-primary-700">
+                {formData.brand} {formData.model} {formData.year}
+              </span>
+            </div>
+          )}
+
+          {/* Year + Price */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Yil *</label>
+              <input
                 type="number"
+                name="year"
                 value={formData.year}
                 onChange={handleChange}
                 min="1950"
                 max={new Date().getFullYear() + 1}
-                required
-              />
-              <PriceInput
-                label="Narx *"
-                value={formData.price}
-                onChange={(val) => setFormData({ ...formData, price: val })}
-                placeholder="0"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white transition-all"
               />
             </div>
-
-            <CitySelect
-              label="Shahar *"
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
+            <PriceInput
+              label="Narx *"
+              value={formData.price}
+              onChange={(val) => setFormData({ ...formData, price: val })}
+              placeholder="0"
             />
           </div>
-        </div>
 
-        {/* Technical Specs */}
-        <div className="card p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Texnik xususiyatlari</h2>
-          <div className="space-y-4">
-            <Select
-              label="Kategoriya"
-              name="category_id"
-              value={formData.category_id}
+          {/* City */}
+          <CitySelect
+            label="Shahar *"
+            name="city"
+            value={formData.city}
+            onChange={handleChange}
+          />
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Tavsif <span className="text-gray-400">(ixtiyoriy)</span>
+            </label>
+            <textarea
+              name="description"
+              value={formData.description}
               onChange={handleChange}
-              options={categories.map(cat => ({ value: cat.id, label: cat.name }))}
+              rows={3}
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white transition-all placeholder:text-gray-400 resize-none"
+              placeholder="Mashina haqida qisqacha ma'lumot..."
+            />
+          </div>
+
+          {/* Next */}
+          <div className="flex justify-end pt-2">
+            <Button onClick={() => {
+              if (!formData.brand || !formData.model || !formData.price || !formData.city) {
+                toast.error("Marka, model, narx va shaharni to'ldiring");
+                return;
+              }
+              setStep(2);
+            }}>
+              Keyingi
+              <IoArrowForward className="ml-2" size={16} />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 2: Technical specs */}
+      {step === 2 && (
+        <div className="p-6 space-y-5">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">Texnik xususiyatlar</h2>
+            <p className="text-sm text-gray-500">Qo'shimcha ma'lumotlarni kiriting</p>
+          </div>
+
+          {/* Category */}
+          <Select
+            label="Kategoriya"
+            name="category_id"
+            value={formData.category_id}
+            onChange={handleChange}
+            options={categories.map(cat => ({ value: cat.id, label: `${cat.icon} ${cat.name}` }))}
+            placeholder="Tanlang"
+          />
+
+          {/* Fuel + Transmission */}
+          <div className="grid grid-cols-2 gap-4">
+            <Select
+              label="Yoqilg'i turi"
+              name="fuel_type"
+              value={formData.fuel_type}
+              onChange={handleChange}
+              options={FUEL_TYPES}
               placeholder="Tanlang"
             />
+            <Select
+              label="Uzatma qutisi"
+              name="transmission"
+              value={formData.transmission}
+              onChange={handleChange}
+              options={TRANSMISSIONS}
+              placeholder="Tanlang"
+            />
+          </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <Select
-                label="Yoqilg'i turi"
-                name="fuel_type"
-                value={formData.fuel_type}
-                onChange={handleChange}
-                options={FUEL_TYPES}
-                placeholder="Tanlang"
-              />
-              <Select
-                label="Uzatma qutisi"
-                name="transmission"
-                value={formData.transmission}
-                onChange={handleChange}
-                options={TRANSMISSIONS}
-                placeholder="Tanlang"
-              />
+          {/* Body type + Color */}
+          <div className="grid grid-cols-2 gap-4">
+            <Select
+              label="Karobka turi"
+              name="body_type"
+              value={formData.body_type}
+              onChange={handleChange}
+              options={BODY_TYPES}
+              placeholder="Tanlang"
+            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <IoColorFill size={14} className="inline mr-1" />
+                Rang
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {COLORS.map(c => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, color: c })}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all ${
+                      formData.color === c
+                        ? 'bg-primary-600 text-white border-primary-600'
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-primary-300'
+                    }`}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
             </div>
+          </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <Select
-                label="Karobka turi"
-                name="body_type"
-                value={formData.body_type}
-                onChange={handleChange}
-                options={BODY_TYPES}
-                placeholder="Tanlang"
-              />
-              <Input
-                label="Rang"
-                name="color"
-                value={formData.color}
-                onChange={handleChange}
-                placeholder="Oq"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Dvigatel hajmi (l)"
-                name="engine_volume"
+          {/* Engine + Mileage */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <IoSpeedometer size={14} className="inline mr-1" />
+                Dvigatel hajmi (l)
+              </label>
+              <input
                 type="number"
+                name="engine_volume"
                 step="0.1"
                 value={formData.engine_volume}
                 onChange={handleChange}
                 placeholder="2.0"
-              />
-              <MileageInput
-                label="Probeg"
-                value={formData.mileage}
-                onChange={(val) => setFormData({ ...formData, mileage: val })}
-                placeholder="0"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white transition-all placeholder:text-gray-400"
               />
             </div>
+            <MileageInput
+              label="Probeg"
+              value={formData.mileage}
+              onChange={(val) => setFormData({ ...formData, mileage: val })}
+              placeholder="0"
+            />
+          </div>
+
+          {/* Navigation */}
+          <div className="flex justify-between pt-2">
+            <Button variant="secondary" onClick={() => setStep(1)}>
+              <IoArrowBack className="mr-2" size={16} />
+              Orqaga
+            </Button>
+            <Button onClick={() => setStep(3)}>
+              Keyingi
+              <IoArrowForward className="ml-2" size={16} />
+            </Button>
           </div>
         </div>
+      )}
 
-        {/* Description */}
-        <div className="card p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Tavsif</h2>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            rows={4}
-            className="input-field resize-none"
-            placeholder="Mashina haqida batafsil ma'lumot..."
-          />
-        </div>
+      {/* Step 3: Images */}
+      {step === 3 && (
+        <div className="p-6 space-y-5">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">Rasmlar</h2>
+            <p className="text-sm text-gray-500">Mashinangiz rasmlarini yuklang (ixtiyoriy, maks. 10 ta)</p>
+          </div>
 
-        {/* Images */}
-        <div className="card p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Rasmlar</h2>
           <ImageUploader images={images} onChange={setImages} />
-        </div>
 
-        {/* Submit */}
-        <div className="flex gap-4 pb-8">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => router.back()}
-            className="flex-1"
-          >
-            Bekor qilish
-          </Button>
-          <Button
-            type="submit"
-            loading={loading}
-            className="flex-1"
-          >
-            <IoCarSport className="mr-2" size={18} />
-            E'lon joylashtirish
-          </Button>
+          {/* Summary before submit */}
+          <div className="bg-gray-50 rounded-xl p-4 mt-4">
+            <h4 className="text-sm font-semibold text-gray-700 mb-2">E'lon xulosasi:</h4>
+            <div className="flex flex-wrap gap-3 text-sm text-gray-600">
+              <span className="bg-white px-3 py-1 rounded-lg border border-gray-200">
+                🚗 {formData.brand} {formData.model} {formData.year}
+              </span>
+              <span className="bg-white px-3 py-1 rounded-lg border border-gray-200">
+                💰 {formData.price > 0 ? new Intl.NumberFormat('uz-UZ').format(formData.price) + " so'm" : "Ko'rsatilmagan"}
+              </span>
+              <span className="bg-white px-3 py-1 rounded-lg border border-gray-200">
+                📍 {formData.city || "Ko'rsatilmagan"}
+              </span>
+              {formData.fuel_type && (
+                <span className="bg-white px-3 py-1 rounded-lg border border-gray-200">
+                  ⛽ {formData.fuel_type}
+                </span>
+              )}
+              {formData.transmission && (
+                <span className="bg-white px-3 py-1 rounded-lg border border-gray-200">
+                  ⚙️ {formData.transmission}
+                </span>
+              )}
+              {images.length > 0 && (
+                <span className="bg-white px-3 py-1 rounded-lg border border-gray-200">
+                  🖼 {images.length} ta rasm
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex justify-between pt-2">
+            <Button variant="secondary" onClick={() => setStep(2)}>
+              <IoArrowBack className="mr-2" size={16} />
+              Orqaga
+            </Button>
+            <Button onClick={handleSubmit} loading={loading}>
+              <IoCheckmark className="mr-2" size={18} />
+              E'lon joylashtirish
+            </Button>
+          </div>
         </div>
-      </form>
+      )}
     </div>
   );
 }
