@@ -9,9 +9,12 @@ import { Car, Category } from '@/types';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
+import PriceInput from '@/components/ui/PriceInput';
+import MileageInput from '@/components/ui/MileageInput';
+import CitySelect from '@/components/ui/CitySelect';
 import { PageLoading } from '@/components/ui/Loading';
 import toast from 'react-hot-toast';
-import { IoSave, IoArrowBack, IoTrash } from 'react-icons/io5';
+import { IoSave, IoArrowBack, IoTrash, IoAdd } from 'react-icons/io5';
 
 const FUEL_TYPES = [
   { value: 'benzin', label: 'Benzin' },
@@ -51,18 +54,19 @@ export default function EditCarPage() {
     brand: '',
     model: '',
     year: '',
-    price: '',
+    price: 0,
     category_id: '',
     fuel_type: '',
     transmission: '',
     body_type: '',
     color: '',
     engine_volume: '',
-    mileage: '',
+    mileage: 0,
     city: '',
     status: 'active',
   });
   const [images, setImages] = useState<string[]>([]);
+  const [imageUrlInput, setImageUrlInput] = useState('');
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -91,14 +95,14 @@ export default function EditCarPage() {
           brand: carData.brand || '',
           model: carData.model || '',
           year: carData.year?.toString() || '',
-          price: carData.price?.toString() || '',
+          price: carData.price || 0,
           category_id: carData.category_id || '',
           fuel_type: carData.fuel_type || '',
           transmission: carData.transmission || '',
           body_type: carData.body_type || '',
           color: carData.color || '',
           engine_volume: carData.engine_volume?.toString() || '',
-          mileage: carData.mileage?.toString() || '',
+          mileage: carData.mileage || 0,
           city: carData.city || '',
           status: carData.status || 'active',
         });
@@ -122,14 +126,17 @@ export default function EditCarPage() {
   };
 
   const handleAddImage = () => {
-    const url = prompt("Rasm URL kiriting:");
-    if (url && url.trim()) {
-      if (images.length >= 10) {
-        toast.error("Ko'pi bilan 10 ta rasm qo'shish mumkin");
-        return;
-      }
-      setImages([...images, url.trim()]);
+    const url = imageUrlInput.trim();
+    if (!url) {
+      toast.error("URL kiriting");
+      return;
     }
+    if (images.length >= 10) {
+      toast.error("Ko'pi bilan 10 ta rasm qo'shish mumkin");
+      return;
+    }
+    setImages([...images, url]);
+    setImageUrlInput('');
   };
 
   const handleRemoveImage = (index: number) => {
@@ -150,9 +157,9 @@ export default function EditCarPage() {
       const updateData = {
         ...formData,
         year: Number(formData.year),
-        price: Number(formData.price),
+        price: formData.price,
         engine_volume: formData.engine_volume ? Number(formData.engine_volume) : null,
-        mileage: formData.mileage ? Number(formData.mileage) : null,
+        mileage: formData.mileage || null,
         category_id: formData.category_id || null,
         fuel_type: formData.fuel_type || null,
         transmission: formData.transmission || null,
@@ -240,22 +247,19 @@ export default function EditCarPage() {
                 max={new Date().getFullYear() + 1}
                 required
               />
-              <Input
-                label="Narx (so'm) *"
-                name="price"
-                type="number"
+              <PriceInput
+                label="Narx *"
                 value={formData.price}
-                onChange={handleChange}
-                required
+                onChange={(val) => setFormData({ ...formData, price: val })}
+                placeholder="0"
               />
             </div>
 
-            <Input
+            <CitySelect
               label="Shahar *"
               name="city"
               value={formData.city}
               onChange={handleChange}
-              required
             />
           </div>
         </div>
@@ -318,12 +322,11 @@ export default function EditCarPage() {
                 value={formData.engine_volume}
                 onChange={handleChange}
               />
-              <Input
-                label="Probeg (km)"
-                name="mileage"
-                type="number"
+              <MileageInput
+                label="Probeg"
                 value={formData.mileage}
-                onChange={handleChange}
+                onChange={(val) => setFormData({ ...formData, mileage: val })}
+                placeholder="0"
               />
             </div>
           </div>
@@ -369,14 +372,23 @@ export default function EditCarPage() {
             </div>
           )}
 
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={handleAddImage}
-            className="w-full"
-          >
-            Rasm qo'shish
-          </Button>
+          <div className="flex gap-2">
+            <input
+              type="url"
+              value={imageUrlInput}
+              onChange={(e) => setImageUrlInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddImage())}
+              placeholder="Rasm URL manzilini kiriting..."
+              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white transition-all duration-200 placeholder:text-gray-400"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleAddImage}
+            >
+              <IoAdd size={18} />
+            </Button>
+          </div>
         </div>
 
         {/* Submit */}

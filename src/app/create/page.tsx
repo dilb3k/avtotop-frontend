@@ -8,8 +8,11 @@ import { Category } from '@/types';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
+import PriceInput from '@/components/ui/PriceInput';
+import MileageInput from '@/components/ui/MileageInput';
+import CitySelect from '@/components/ui/CitySelect';
 import toast from 'react-hot-toast';
-import { IoCarSport, IoImage, IoTrash } from 'react-icons/io5';
+import { IoCarSport, IoImage, IoTrash, IoAdd } from 'react-icons/io5';
 
 const FUEL_TYPES = [
   { value: 'benzin', label: 'Benzin' },
@@ -46,17 +49,18 @@ export default function CreateCarPage() {
     brand: '',
     model: '',
     year: new Date().getFullYear().toString(),
-    price: '',
+    price: 0,
     category_id: '',
     fuel_type: '',
     transmission: '',
     body_type: '',
     color: '',
     engine_volume: '',
-    mileage: '',
+    mileage: 0,
     city: '',
   });
   const [images, setImages] = useState<string[]>([]);
+  const [imageUrlInput, setImageUrlInput] = useState('');
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -81,15 +85,18 @@ export default function CreateCarPage() {
   };
 
   const handleAddImage = () => {
-    const url = prompt("Rasm URL kiriting (masalan, Google Drive yoki boshqa manba):");
-    if (url && url.trim()) {
-      if (images.length >= 10) {
-        toast.error("Ko'pi bilan 10 ta rasm qo'shish mumkin");
-        return;
-      }
-      setImages([...images, url.trim()]);
-      toast.success("Rasm qo'shildi");
+    const url = imageUrlInput.trim();
+    if (!url) {
+      toast.error("URL kiriting");
+      return;
     }
+    if (images.length >= 10) {
+      toast.error("Ko'pi bilan 10 ta rasm qo'shish mumkin");
+      return;
+    }
+    setImages([...images, url]);
+    setImageUrlInput('');
+    toast.success("Rasm qo'shildi");
   };
 
   const handleRemoveImage = (index: number) => {
@@ -105,7 +112,7 @@ export default function CreateCarPage() {
       return;
     }
 
-    if (Number(formData.price) <= 0) {
+    if (formData.price <= 0) {
       toast.error("Narx 0 dan katta bo'lishi kerak");
       return;
     }
@@ -115,15 +122,20 @@ export default function CreateCarPage() {
       return;
     }
 
+    if (!formData.city) {
+      toast.error("Shaharni tanlang");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const carData = {
         ...formData,
         year: Number(formData.year),
-        price: Number(formData.price),
+        price: formData.price,
         engine_volume: formData.engine_volume ? Number(formData.engine_volume) : null,
-        mileage: formData.mileage ? Number(formData.mileage) : null,
+        mileage: formData.mileage || null,
         category_id: formData.category_id || null,
         fuel_type: formData.fuel_type || null,
         transmission: formData.transmission || null,
@@ -202,24 +214,19 @@ export default function CreateCarPage() {
                 max={new Date().getFullYear() + 1}
                 required
               />
-              <Input
-                label="Narx (so'm) *"
-                name="price"
-                type="number"
+              <PriceInput
+                label="Narx *"
                 value={formData.price}
-                onChange={handleChange}
-                placeholder="150000000"
-                required
+                onChange={(val) => setFormData({ ...formData, price: val })}
+                placeholder="0"
               />
             </div>
 
-            <Input
+            <CitySelect
               label="Shahar *"
               name="city"
               value={formData.city}
               onChange={handleChange}
-              placeholder="Toshkent"
-              required
             />
           </div>
         </div>
@@ -284,13 +291,11 @@ export default function CreateCarPage() {
                 onChange={handleChange}
                 placeholder="2.0"
               />
-              <Input
-                label="Probeg (km)"
-                name="mileage"
-                type="number"
+              <MileageInput
+                label="Probeg"
                 value={formData.mileage}
-                onChange={handleChange}
-                placeholder="50000"
+                onChange={(val) => setFormData({ ...formData, mileage: val })}
+                placeholder="0"
               />
             </div>
           </div>
@@ -342,17 +347,25 @@ export default function CreateCarPage() {
             </div>
           )}
 
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={handleAddImage}
-            className="w-full"
-          >
-            <IoImage className="mr-2" size={18} />
-            Rasm qo'shish
-          </Button>
+          <div className="flex gap-2">
+            <input
+              type="url"
+              value={imageUrlInput}
+              onChange={(e) => setImageUrlInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddImage())}
+              placeholder="Rasm URL manzilini kiriting..."
+              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white transition-all duration-200 placeholder:text-gray-400"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleAddImage}
+            >
+              <IoAdd size={18} />
+            </Button>
+          </div>
           <p className="text-xs text-gray-500 mt-2">
-            Rasm URL manzilini kiriting (Google Drive, Imgur va boshqalar)
+            URL kiriting va + bosing yoki Enter ni bosing
           </p>
         </div>
 

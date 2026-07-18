@@ -6,8 +6,9 @@ import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthProvider';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import PhoneInput from '@/components/ui/PhoneInput';
 import toast from 'react-hot-toast';
-import { IoMail, IoLockClosed, IoPerson, IoCall, IoCarSport } from 'react-icons/io5';
+import { IoMail, IoLockClosed, IoPerson, IoCarSport } from 'react-icons/io5';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -95,14 +96,11 @@ export default function RegisterPage() {
               required
             />
 
-            <Input
+            <PhoneInput
               label="Telefon (ixtiyoriy)"
-              type="tel"
               name="phone"
               value={formData.phone}
-              onChange={handleChange}
-              placeholder="+998 90 123 45 67"
-              leftIcon={<IoCall size={18} />}
+              onChange={(val) => setFormData({ ...formData, phone: val })}
             />
 
             <Input
