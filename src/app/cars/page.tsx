@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useCars } from '@/hooks/useCars';
 import { SearchFilters } from '@/types';
@@ -10,7 +10,7 @@ import CarFilters from '@/components/car/CarFilters';
 import { PageLoading } from '@/components/ui/Loading';
 import { IoSearch, IoGrid, IoList, IoCarSport } from 'react-icons/io5';
 
-export default function CarsPage() {
+function CarsContent() {
   const searchParams = useSearchParams();
   const [brands, setBrands] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
@@ -212,5 +212,13 @@ export default function CarsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CarsPage() {
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <CarsContent />
+    </Suspense>
   );
 }

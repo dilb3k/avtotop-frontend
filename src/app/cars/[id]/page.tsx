@@ -12,8 +12,8 @@ import Button from '@/components/ui/Button';
 import toast from 'react-hot-toast';
 import {
   IoHeart, IoHeartOutline, IoShare, IoFlag, IoArrowBack,
-  IoCalendar, IoSpeedometer, IoFuel, IoColorFill, IoCarSport,
-  IoLocation, IoPerson, IoCall, IoTime, IoEye, IoClose, IoChevronLeft, IoChevronRight
+  IoCalendar, IoSpeedometer, IoFlame, IoColorFill, IoCarSport,
+  IoLocation, IoPerson, IoCall, IoTime, IoEye, IoClose, IoChevronBack, IoChevronForward
 } from 'react-icons/io5';
 
 export default function CarDetailPage() {
@@ -64,7 +64,7 @@ export default function CarDetailPage() {
       <div className="page-container text-center py-20">
         <IoCarSport className="mx-auto text-gray-300 mb-4" size={80} />
         <h2 className="text-2xl font-bold text-gray-900 mb-2">E'lon topilmadi</h2>
-        <p className="text-gray-500 mb-6">{error || 'Bu e'lon mavjud emas yoki o\'chirilgan'}</p>
+        <p className="text-gray-500 mb-6">{error || "Bu e'lon mavjud emas yoki o'chirilgan"}</p>
         <Link href="/cars" className="btn-primary">
           E'lonlar ro'yxatiga qaytish
         </Link>
@@ -78,7 +78,7 @@ export default function CarDetailPage() {
   const specs = [
     { icon: IoCalendar, label: 'Yil', value: car.year },
     { icon: IoSpeedometer, label: 'Probeg', value: car.mileage ? `${car.mileage.toLocaleString()} km` : "Yangi" },
-    { icon: IoFuel, label: 'Yoqilg\'i', value: car.fuel_type || "Noma'lum" },
+    { icon: IoFlame, label: 'Yoqilg\'i', value: car.fuel_type || "Noma'lum" },
     { icon: IoCarSport, label: 'Uzatma', value: car.transmission || "Noma'lum" },
     { icon: IoColorFill, label: 'Rang', value: car.color || "Noma'lum" },
     { icon: IoCarSport, label: 'Karobka', value: car.body_type || "Noma'lum" },
@@ -116,13 +116,13 @@ export default function CarDetailPage() {
                         onClick={() => setSelectedImageIndex(prev => prev > 0 ? prev - 1 : images.length - 1)}
                         className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-white/90 rounded-full shadow-lg hover:bg-white"
                       >
-                        <IoChevronLeft size={20} />
+                        <IoChevronBack size={20} />
                       </button>
                       <button
                         onClick={() => setSelectedImageIndex(prev => prev < images.length - 1 ? prev + 1 : 0)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-white/90 rounded-full shadow-lg hover:bg-white"
                       >
-                        <IoChevronRight size={20} />
+                        <IoChevronForward size={20} />
                       </button>
                     </>
                   )}

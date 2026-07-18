@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 import { Car, Category } from '@/types';
 import CarCard from '@/components/car/CarCard';
 import { ListSkeleton } from '@/components/ui/Loading';
-import { IoSearch, IoCarSport, IoArrowForward, IoShield, IoStar, IoSpeed } from 'react-icons/io5';
+import { IoSearch, IoCarSport, IoArrowForward, IoShield, IoStar, IoSpeedometer } from 'react-icons/io5';
 
 export default function HomePage() {
   const [featuredCars, setFeaturedCars] = useState<Car[]>([]);
@@ -120,7 +120,7 @@ export default function HomePage() {
             </div>
             <div className="flex items-start gap-4 p-6 rounded-2xl hover:bg-gray-50 transition-colors">
               <div className="w-12 h-12 bg-accent-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <IoSpeed className="text-accent-600" size={24} />
+                <IoSpeedometer className="text-accent-600" size={24} />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1">Tezkor qidirish</h3>

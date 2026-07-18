@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { IoCarSport, IoLogoGithub, IoLogoTelegram } from 'react-icons/io5';
+import { IoCarSport, IoLogoGithub, IoSend } from 'react-icons/io5';
 
 export default function Footer() {
   return (
@@ -27,7 +27,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
               >
-                <IoLogoTelegram size={20} />
+                <IoSend size={20} />
               </a>
               <a
                 href="https://github.com/dilb3k/avtotop"

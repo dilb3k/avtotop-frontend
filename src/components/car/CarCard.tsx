@@ -6,7 +6,7 @@ import { Car } from '@/types';
 import { formatPrice, getPrimaryImage, formatDate } from '@/lib/utils';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { api } from '@/lib/api';
-import { IoHeart, IoHeartOutline, IoEye, IoLocation, IoCalendar, IoSpeedometer, IoFuel } from 'react-icons/io5';
+import { IoHeart, IoHeartOutline, IoEye, IoLocation, IoCalendar, IoSpeedometer, IoFlame } from 'react-icons/io5';
 import toast from 'react-hot-toast';
 
 interface CarCardProps {
@@ -117,7 +117,7 @@ export default function CarCard({ car, onFavoriteToggle }: CarCardProps) {
             </span>
             {car.fuel_type && (
               <span className="flex items-center gap-1">
-                <IoFuel size={12} />
+                <IoFlame size={12} />
                 {car.fuel_type}
               </span>
             )}

@@ -17,7 +17,7 @@ import {
 } from 'react-icons/io5';
 
 export default function ProfilePage() {
-  const { user, profile, loading: authLoading, signOut, updateProfile, refreshUser } = useAuth();
+  const { user, profile, loading: authLoading, signOut, updateProfile, refreshUser, isAuthenticated } = useAuth();
   const router = useRouter();
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
