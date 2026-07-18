@@ -83,7 +83,6 @@ export function useAuth() {
         password,
         full_name: fullName,
         phone,
-        role: 'user',
       });
       localStorage.setItem('auth_token', data.session.access_token);
       setState({

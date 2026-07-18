@@ -9,6 +9,8 @@ import { Car } from '@/types';
 import CarCard from '@/components/car/CarCard';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import PhoneInput from '@/components/ui/PhoneInput';
+import CitySelect from '@/components/ui/CitySelect';
 import { PageLoading } from '@/components/ui/Loading';
 import toast from 'react-hot-toast';
 import {
@@ -28,6 +30,7 @@ export default function ProfilePage() {
     phone: '',
     city: '',
     description: '',
+    telegram_id: '',
   });
 
   useEffect(() => {
@@ -43,6 +46,7 @@ export default function ProfilePage() {
         phone: profile.phone || '',
         city: profile.city || '',
         description: profile.description || '',
+        telegram_id: (profile as any).telegram_id || '',
       });
     }
   }, [profile]);
@@ -200,19 +204,25 @@ export default function ProfilePage() {
                   value={formData.full_name}
                   onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                 />
-                <Input
+                <PhoneInput
                   label="Telefon"
                   name="phone"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+998 90 123 45 67"
+                  onChange={(val) => setFormData({ ...formData, phone: val })}
                 />
-                <Input
+                <CitySelect
                   label="Shahar"
                   name="city"
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  placeholder="Toshkent"
+                />
+                <Input
+                  label="Telegram ID"
+                  name="telegram_id"
+                  value={formData.telegram_id}
+                  onChange={(e) => setFormData({ ...formData, telegram_id: e.target.value })}
+                  placeholder="Masalan: 123456789"
+                  helperText="Botdan foydalanish uchun Telegram ID kiriting"
                 />
               </div>
               <div className="mt-4">

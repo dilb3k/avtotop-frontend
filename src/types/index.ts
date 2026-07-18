@@ -6,6 +6,7 @@ export interface User {
   avatar_url?: string;
   city?: string;
   description?: string;
+  telegram_id?: string;
   role: 'user' | 'seller' | 'admin';
   is_verified: boolean;
   created_at: string;
