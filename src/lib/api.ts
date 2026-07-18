@@ -60,6 +60,46 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  async uploadImage(file: File): Promise<{ url: string }> {
+    const token = this.getToken();
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch(`${API_URL}/upload`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || 'Rasmni yuklashda xatolik');
+    }
+    return data;
+  }
+
+  async uploadImages(files: File[]): Promise<{ urls: string[] }> {
+    const token = this.getToken();
+    const formData = new FormData();
+    files.forEach(file => formData.append('images', file));
+
+    const response = await fetch(`${API_URL}/upload/multiple`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || 'Rasmlarni yuklashda xatolik');
+    }
+    return data;
+  }
 }
 
 export const api = new ApiClient();

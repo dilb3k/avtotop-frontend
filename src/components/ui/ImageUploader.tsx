@@ -1,11 +1,10 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/components/auth/AuthProvider';
+import { api } from '@/lib/api';
 import Button from './Button';
 import toast from 'react-hot-toast';
-import { IoImage, IoTrash, IoCloudUpload, IoClose, IoReorderTwo } from 'react-icons/io5';
+import { IoCloudUpload, IoClose, IoReorderTwo } from 'react-icons/io5';
 
 interface ImageUploaderProps {
   images: string[];
@@ -14,32 +13,9 @@ interface ImageUploaderProps {
 }
 
 export default function ImageUploader({ images, onChange, maxImages = 10 }: ImageUploaderProps) {
-  const { user } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const uploadFile = async (file: File): Promise<string | null> => {
-    if (!user) return null;
-
-    const fileExt = file.name.split('.').pop();
-    const filePath = `cars/${user.id}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${fileExt}`;
-
-    const { error } = await supabase.storage
-      .from('car-images')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
-
-    if (error) {
-      console.error('Upload error:', error);
-      return null;
-    }
-
-    const { data } = supabase.storage.from('car-images').getPublicUrl(filePath);
-    return data.publicUrl;
-  };
 
   const handleFiles = async (files: FileList | File[]) => {
     const fileArray = Array.from(files).filter(f => f.type.startsWith('image/'));
@@ -55,34 +31,26 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }: Imag
     }
 
     setUploading(true);
-    const uploadedUrls: string[] = [];
-    let failed = 0;
 
-    for (const file of fileArray) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error(`${file.name} hajmi 5MB dan katta`);
-        failed++;
-        continue;
+    try {
+      const oversized = fileArray.filter(f => f.size > 5 * 1024 * 1024);
+      if (oversized.length > 0) {
+        toast.error(`${oversized.map(f => f.name).join(', ')} hajmi 5MB dan katta`);
+        const validFiles = fileArray.filter(f => f.size <= 5 * 1024 * 1024);
+        if (validFiles.length === 0) {
+          setUploading(false);
+          return;
+        }
       }
 
-      const url = await uploadFile(file);
-      if (url) {
-        uploadedUrls.push(url);
-      } else {
-        failed++;
-      }
+      const { urls } = await api.uploadImages(fileArray.filter(f => f.size <= 5 * 1024 * 1024));
+      onChange([...images, ...urls]);
+      toast.success(`${urls.length} ta rasm yuklandi`);
+    } catch (error: any) {
+      toast.error(error.message || 'Rasm yuklashda xatolik');
+    } finally {
+      setUploading(false);
     }
-
-    if (uploadedUrls.length > 0) {
-      onChange([...images, ...uploadedUrls]);
-      toast.success(`${uploadedUrls.length} ta rasm yuklandi`);
-    }
-
-    if (failed > 0) {
-      toast.error(`${failed} ta rasm yuklashda xatolik`);
-    }
-
-    setUploading(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,8 +76,7 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }: Imag
   const handleDragLeave = () => setDragOver(false);
 
   const handleRemove = (index: number) => {
-    const newImages = images.filter((_, i) => i !== index);
-    onChange(newImages);
+    onChange(images.filter((_, i) => i !== index));
   };
 
   const handleSetPrimary = (index: number) => {
@@ -122,7 +89,6 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }: Imag
 
   return (
     <div className="space-y-4">
-      {/* Uploaded images preview */}
       {images.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {images.map((url, index) => (
@@ -136,15 +102,12 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }: Imag
                     'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50%" x="50%" text-anchor="middle" dy=".3em" font-size="30">🖼️</text></svg>';
                 }}
               />
-              {/* Overlay */}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-200" />
-              {/* Primary badge */}
               {index === 0 && (
                 <div className="absolute top-2 left-2 px-2 py-0.5 bg-primary-500 text-white text-xs rounded-lg font-medium">
                   Asosiy
                 </div>
               )}
-              {/* Action buttons */}
               <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 {index !== 0 && (
                   <button
@@ -165,7 +128,6 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }: Imag
                   <IoClose size={14} />
                 </button>
               </div>
-              {/* Index number */}
               <div className="absolute bottom-2 left-2 px-1.5 py-0.5 bg-black/50 text-white text-xs rounded">
                 {index + 1}
               </div>
@@ -174,15 +136,15 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }: Imag
         </div>
       )}
 
-      {/* Drop zone / Upload area */}
       {images.length < maxImages && (
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => !uploading && fileInputRef.current?.click()}
           className={`
-            relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200
+            relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200
+            ${uploading ? 'cursor-wait' : 'cursor-pointer'}
             ${dragOver
               ? 'border-primary-500 bg-primary-50'
               : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
@@ -200,8 +162,13 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }: Imag
 
           {uploading ? (
             <div className="flex flex-col items-center gap-3">
-              <div className="spinner" />
-              <p className="text-sm text-gray-600">Yuklanmoqda...</p>
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-primary-100">
+                <div className="w-6 h-6 border-3 border-primary-500 border-t-transparent rounded-full animate-spin" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">Yuklanmoqda...</p>
+                <p className="text-xs text-gray-500 mt-1">Rasmlar saqlanmoqda</p>
+              </div>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-3">
@@ -227,7 +194,6 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }: Imag
         </div>
       )}
 
-      {/* Max images reached */}
       {images.length >= maxImages && (
         <p className="text-sm text-amber-600 bg-amber-50 rounded-xl p-3 text-center">
           Maksimal {maxImages} ta rasm yuklangan
