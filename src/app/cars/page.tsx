@@ -8,7 +8,7 @@ import { api } from '@/lib/api';
 import CarCard from '@/components/car/CarCard';
 import CarFilters from '@/components/car/CarFilters';
 import { PageLoading } from '@/components/ui/Loading';
-import { IoSearch, IoGrid, IoList, IoCarSport } from 'react-icons/io5';
+import { IoSearch, IoCarSport } from 'react-icons/io5';
 
 function CarsContent() {
   const searchParams = useSearchParams();
@@ -95,8 +95,22 @@ function CarsContent() {
           <select
             value={`${filters.sort_by}_${filters.sort_order}`}
             onChange={(e) => {
-              const [sort_by, sort_order] = e.target.value.split('_');
-              updateFilters({ sort_by, sort_order: sort_order as 'asc' | 'desc' });
+              const val = e.target.value;
+              if (val === 'created_at') {
+                updateFilters({ sort_by: 'created_at', sort_order: 'desc' });
+              } else if (val === 'price_asc') {
+                updateFilters({ sort_by: 'price', sort_order: 'asc' });
+              } else if (val === 'price_desc') {
+                updateFilters({ sort_by: 'price', sort_order: 'desc' });
+              } else if (val === 'year_desc') {
+                updateFilters({ sort_by: 'year', sort_order: 'desc' });
+              } else if (val === 'year_asc') {
+                updateFilters({ sort_by: 'year', sort_order: 'asc' });
+              } else if (val === 'mileage_asc') {
+                updateFilters({ sort_by: 'mileage', sort_order: 'asc' });
+              } else if (val === 'views_desc') {
+                updateFilters({ sort_by: 'views', sort_order: 'desc' });
+              }
             }}
             className="select-field !w-auto !py-2 text-sm"
           >

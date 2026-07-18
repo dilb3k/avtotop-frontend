@@ -67,23 +67,23 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4">Kategoriyalar</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/cars?category=1" className="hover:text-white transition-colors">
-                  Sedan
+                <Link href="/cars?brand=Toyota" className="hover:text-white transition-colors">
+                  Toyota
                 </Link>
               </li>
               <li>
-                <Link href="/cars?category=2" className="hover:text-white transition-colors">
-                  SUV / Jeep
+                <Link href="/cars?brand=BMW" className="hover:text-white transition-colors">
+                  BMW
                 </Link>
               </li>
               <li>
-                <Link href="/cars?category=3" className="hover:text-white transition-colors">
-                  Hatchback
+                <Link href="/cars?brand=Mercedes" className="hover:text-white transition-colors">
+                  Mercedes
                 </Link>
               </li>
               <li>
-                <Link href="/cars?category=8" className="hover:text-white transition-colors">
-                  Elektromobil
+                <Link href="/cars" className="hover:text-white transition-colors">
+                  Barcha mashinalar
                 </Link>
               </li>
             </ul>

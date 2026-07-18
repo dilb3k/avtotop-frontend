@@ -12,8 +12,8 @@ import Input from '@/components/ui/Input';
 import { PageLoading } from '@/components/ui/Loading';
 import toast from 'react-hot-toast';
 import {
-  IoPerson, IoMail, IoCall, IoLocation, IoCalendar,
-  IoCarSport, IoEye, IoHeart, IoAdd, IoSettings, IoLogOut, IoTrash
+  IoMail, IoCall, IoLocation, IoCalendar,
+  IoCarSport, IoEye, IoAdd, IoSettings, IoLogOut, IoTrash
 } from 'react-icons/io5';
 
 export default function ProfilePage() {

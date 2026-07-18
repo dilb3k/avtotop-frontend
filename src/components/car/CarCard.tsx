@@ -39,7 +39,6 @@ export default function CarCard({ car, onFavoriteToggle }: CarCardProps) {
   };
 
   const imageUrl = getPrimaryImage(car.car_images);
-  const sellerName = car.profiles?.full_name || 'Noma\'lum';
   const categoryName = car.categories?.name || '';
 
   return (

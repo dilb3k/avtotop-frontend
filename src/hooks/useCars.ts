@@ -19,6 +19,16 @@ export function useCars(initialFilters: SearchFilters = {}) {
     limit: 12,
     ...initialFilters,
   });
+
+  useEffect(() => {
+    setFilters(prev => {
+      const updated = { ...initialFilters, page: prev.page, limit: prev.limit };
+      if (JSON.stringify(updated) !== JSON.stringify(prev)) {
+        return updated;
+      }
+      return prev;
+    });
+  }, [initialFilters.category_id, initialFilters.brand, initialFilters.search]);
   const [result, setResult] = useState<UseCarsResult>({
     cars: [],
     total: 0,

@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCar } from '@/hooks/useCars';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { api } from '@/lib/api';
@@ -11,9 +11,9 @@ import { PageLoading } from '@/components/ui/Loading';
 import Button from '@/components/ui/Button';
 import toast from 'react-hot-toast';
 import {
-  IoHeart, IoHeartOutline, IoShare, IoFlag, IoArrowBack,
+  IoHeart, IoHeartOutline, IoShare, IoArrowBack,
   IoCalendar, IoSpeedometer, IoFlame, IoColorFill, IoCarSport,
-  IoLocation, IoPerson, IoCall, IoTime, IoEye, IoClose, IoChevronBack, IoChevronForward
+  IoLocation, IoPerson, IoCall, IoTime, IoEye, IoChevronBack, IoChevronForward
 } from 'react-icons/io5';
 
 export default function CarDetailPage() {
@@ -24,6 +24,12 @@ export default function CarDetailPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showFullDescription, setShowFullDescription] = useState(false);
+
+  useEffect(() => {
+    if (car) {
+      setIsFavorite(car.is_favorite || false);
+    }
+  }, [car?.id]);
 
   const handleFavoriteToggle = async () => {
     if (!isAuthenticated) {
@@ -198,7 +204,7 @@ export default function CarDetailPage() {
                 }`}
               >
                 {isFavorite ? <IoHeart size={18} /> : <IoHeartOutline size={18} />}
-                {isFavorite ? "Sevimlilar" : "Sevimlilar"}
+                {isFavorite ? "Sevimlillarda" : "Sevimlilarga"}
               </button>
               <button
                 onClick={handleShare}
