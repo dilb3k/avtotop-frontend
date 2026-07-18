@@ -14,7 +14,8 @@ import MileageInput from '@/components/ui/MileageInput';
 import CitySelect from '@/components/ui/CitySelect';
 import { PageLoading } from '@/components/ui/Loading';
 import toast from 'react-hot-toast';
-import { IoSave, IoArrowBack, IoTrash, IoAdd } from 'react-icons/io5';
+import { IoSave, IoArrowBack } from 'react-icons/io5';
+import ImageUploader from '@/components/ui/ImageUploader';
 
 const FUEL_TYPES = [
   { value: 'benzin', label: 'Benzin' },
@@ -66,7 +67,6 @@ export default function EditCarPage() {
     status: 'active',
   });
   const [images, setImages] = useState<string[]>([]);
-  const [imageUrlInput, setImageUrlInput] = useState('');
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -123,24 +123,6 @@ export default function EditCarPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleAddImage = () => {
-    const url = imageUrlInput.trim();
-    if (!url) {
-      toast.error("URL kiriting");
-      return;
-    }
-    if (images.length >= 10) {
-      toast.error("Ko'pi bilan 10 ta rasm qo'shish mumkin");
-      return;
-    }
-    setImages([...images, url]);
-    setImageUrlInput('');
-  };
-
-  const handleRemoveImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -347,48 +329,7 @@ export default function EditCarPage() {
         {/* Images */}
         <div className="card p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Rasmlar</h2>
-          
-          {images.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-              {images.map((url, index) => (
-                <div key={index} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100">
-                  <img
-                    src={url}
-                    alt={`Rasm ${index + 1}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50%" x="50%" text-anchor="middle" dy=".3em" font-size="30">🖼️</text></svg>';
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveImage(index)}
-                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                  >
-                    <IoTrash size={12} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="flex gap-2">
-            <input
-              type="url"
-              value={imageUrlInput}
-              onChange={(e) => setImageUrlInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddImage())}
-              placeholder="Rasm URL manzilini kiriting..."
-              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white transition-all duration-200 placeholder:text-gray-400"
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleAddImage}
-            >
-              <IoAdd size={18} />
-            </Button>
-          </div>
+          <ImageUploader images={images} onChange={setImages} />
         </div>
 
         {/* Submit */}
