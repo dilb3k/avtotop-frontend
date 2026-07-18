@@ -67,6 +67,15 @@ export default function CarFilters({ filters, onFilterChange, brands = [], citie
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    if (showMobileFilters) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [showMobileFilters]);
+
   const activeFilterCount = Object.entries(filters).filter(
     ([key, value]) => value && !['page', 'limit', 'sort_by', 'sort_order'].includes(key)
   ).length;
@@ -289,7 +298,7 @@ export default function CarFilters({ filters, onFilterChange, brands = [], citie
       </div>
 
       {/* Mobile Filter Button */}
-      <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40">
+      <div className={`lg:hidden fixed bottom-4 left-4 right-4 z-40 transition-opacity ${showMobileFilters ? 'pointer-events-none opacity-0' : ''}`}>
         <button
           onClick={() => setShowMobileFilters(true)}
           className="w-full btn-primary flex items-center justify-center gap-2 shadow-xl"
@@ -307,9 +316,9 @@ export default function CarFilters({ filters, onFilterChange, brands = [], citie
       {/* Mobile Filter Drawer */}
       {showMobileFilters && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setShowMobileFilters(false)} />
-          <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white shadow-xl animate-slide-up overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowMobileFilters(false)} />
+          <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white shadow-2xl animate-slide-up overflow-y-auto flex flex-col">
+            <div className="sticky top-0 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between z-10">
               <h3 className="font-semibold text-gray-900">Filtrlar</h3>
               <button
                 onClick={() => setShowMobileFilters(false)}
@@ -318,7 +327,7 @@ export default function CarFilters({ filters, onFilterChange, brands = [], citie
                 <IoClose size={20} />
               </button>
             </div>
-            <div className="p-4">
+            <div className="p-4 flex-1">
               <FilterContent />
             </div>
             <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4">
