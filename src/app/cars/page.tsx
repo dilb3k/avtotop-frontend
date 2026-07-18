@@ -125,7 +125,7 @@ function CarsContent() {
         </div>
       </div>
 
-      <div className="flex gap-8">
+      <div className="flex gap-8 items-start">
         {/* Filters Sidebar */}
         <CarFilters
           filters={filters}

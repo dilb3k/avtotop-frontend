@@ -282,8 +282,8 @@ export default function CarFilters({ filters, onFilterChange, brands = [], citie
   return (
     <>
       {/* Desktop Filters */}
-      <div className="hidden lg:block">
-        <div className="card p-4 sticky top-24">
+      <div className="hidden lg:block w-64 shrink-0">
+        <div className="p-4 sticky top-24 rounded-2xl bg-white shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-gray-900 flex items-center gap-2">
               <IoFilter size={18} />
