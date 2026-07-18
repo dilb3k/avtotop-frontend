@@ -107,17 +107,21 @@ export default function CreateCarPage() {
     setLoading(true);
 
     try {
+      const title = `${formData.brand} ${formData.model} ${formData.year}`;
       const carData = {
-        ...formData,
+        title,
+        brand: formData.brand,
+        model: formData.model,
         year: Number(formData.year),
         price: formData.price,
-        engine_volume: formData.engine_volume ? Number(formData.engine_volume) : null,
-        mileage: formData.mileage || null,
+        city: formData.city,
         category_id: formData.category_id || null,
         fuel_type: formData.fuel_type || null,
         transmission: formData.transmission || null,
         body_type: formData.body_type || null,
         color: formData.color || null,
+        engine_volume: formData.engine_volume ? Number(formData.engine_volume) : null,
+        mileage: formData.mileage || null,
         description: formData.description || null,
         images,
       };

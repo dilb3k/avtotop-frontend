@@ -24,6 +24,8 @@ export default function CarDetailPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [phoneModal, setPhoneModal] = useState(false);
+  const [phoneCopied, setPhoneCopied] = useState(false);
 
   useEffect(() => {
     if (car) {
@@ -286,14 +288,48 @@ export default function CarDetailPage() {
 
             {/* Contact Buttons */}
             <div className="space-y-3">
-              {seller?.phone && (
-                <a
-                  href={`tel:${seller.phone}`}
-                  className="flex items-center justify-center gap-2 w-full btn-primary"
-                >
+              {seller?.phone ? (
+                <>
+                  <button
+                    onClick={() => setPhoneModal(true)}
+                    className="flex items-center justify-center gap-2 w-full btn-primary"
+                  >
+                    <IoCall size={18} />
+                    Aloqa
+                  </button>
+                  {phoneModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setPhoneModal(false)}>
+                      <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">Sotuvchi telefoni</h3>
+                        <p className="text-sm text-gray-500 mb-4">Qo'ng'iroq qilish uchun pastdagi tugmalarni bosing</p>
+                        <div className="bg-gray-50 rounded-xl p-4 text-center mb-4">
+                          <p className="text-xl font-mono font-bold text-gray-900 tracking-wide">{seller.phone}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <a href={`tel:${seller.phone}`} className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors">
+                            <IoCall size={16} /> Qo'ng'iroq
+                          </a>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(seller.phone || '');
+                              setPhoneCopied(true);
+                              setTimeout(() => setPhoneCopied(false), 2000);
+                            }}
+                            className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+                          >
+                            {phoneCopied ? '✅ Nusxalandi' : '📋 Nusxalash'}
+                          </button>
+                        </div>
+                        <button onClick={() => setPhoneModal(false)} className="w-full mt-3 py-2 text-sm text-gray-500 hover:text-gray-700">Yopish</button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <button className="flex items-center justify-center gap-2 w-full btn-secondary opacity-50 cursor-not-allowed">
                   <IoCall size={18} />
-                  Qo'ng'iroq qilish
-                </a>
+                  Telefon ko'rsatilmagan
+                </button>
               )}
               <Link
                 href={`/profile/${seller?.id}`}
