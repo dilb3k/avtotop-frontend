@@ -12,6 +12,8 @@ interface ButtonProps {
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
   className?: string;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
 }
 
 export default function Button({
@@ -24,6 +26,8 @@ export default function Button({
   onClick,
   type = 'button',
   className = '',
+  leftIcon,
+  rightIcon,
 }: ButtonProps) {
   const baseStyles = 'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed';
   
@@ -75,7 +79,9 @@ export default function Button({
           />
         </svg>
       )}
+      {!loading && leftIcon && <span className="mr-2">{leftIcon}</span>}
       {children}
+      {!loading && rightIcon && <span className="ml-2">{rightIcon}</span>}
     </button>
   );
 }
